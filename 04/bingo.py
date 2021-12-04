@@ -1,6 +1,6 @@
 from typing import List
 import numpy as np
-
+import os
 
 class Board:
     def __init__(self, raw_board: str) -> None:
@@ -11,7 +11,7 @@ class Board:
     @staticmethod
     def parse_board(raw_board: str) -> np.ndarray:
         board = []
-        for line in raw_board.strip().split("\n"):
+        for line in raw_board.strip().split(os.linesep):
             boardline: List[int] = []
             for n in line.split():
                 if len(n):
@@ -42,23 +42,29 @@ def bingo(input: str) -> None:
     boards: List[Board] = []
     with open(input) as f:
         draw = [int(n) for n in f.readline().strip().split(',')]
-        if f.readline() != "\n":
+        if f.readline() != os.linesep:
             raise Exception("Expected empty line after draw list")
 
         raw_board = ""
         for line in f:
-            if line != "\n":
+            if line != os.linesep:
                 raw_board += line
             else:
                 boards.append(Board(raw_board))
                 raw_board = ""
         boards.append(Board(raw_board))
 
+    winner = False
     for n in draw:
-        for board in boards:
+        for i, board in reversed(list(enumerate(boards))):
             if board.mark(n):
-                print(f"The winner board final score is {board.score()}")
-                exit(0)
+                if not winner:
+                    print(f"The winner board final score is {board.score()}")
+                    winner = True
+                boards.pop(i)
+                if len(boards) == 0:
+                    print(f"The loser board final score is {board.score()}")
+                    return
 
 
 if __name__ == "__main__":
