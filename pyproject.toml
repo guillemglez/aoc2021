@@ -6,7 +6,8 @@ authors = ["Guillem <guillemglez@users.noreply.github.com>"]
 license = "GPL v3.0"
 
 [tool.poetry.dependencies]
-python = "^3.10"
+python = ">=3.10,<3.11"
+numpy = "^1.21.4"
 
 [tool.poetry.dev-dependencies]
 mypy = "^0.910"
