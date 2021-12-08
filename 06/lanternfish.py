@@ -52,3 +52,4 @@ def lanternfish(input: str, days: int) -> None:
 
 if __name__ == "__main__":
     lanternfish("input", 80)
+    lanternfish("input", 256)
