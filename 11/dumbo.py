@@ -1,4 +1,4 @@
-from typing import List, Tuple
+from typing import Final, List, Tuple
 import numpy as np
 
 
@@ -14,11 +14,18 @@ class School:
                 octopuses.append(int(octopus))
             matrix.append(octopuses)
 
-        self.grid = np.array(matrix)
+        self.constgrid: Final = np.array(matrix)
+        self.grid = self.constgrid.copy()
 
-    def simulate(self, steps: int) -> int:
+    def simulate(self, steps: int | None = None) -> int:
+        """
+        Returns number of flashes per given number of steps (part 1) 
+        OR 
+        number of steps until all flash at the same time (part 2) if arg steps is not provided
+        """
         stepped = 0
         flashed = 0
+        self.grid = self.constgrid.copy()
         # Initially, we add one to all octopuses
         sum = np.ones(self.grid.shape, dtype=int)
         while (True):
@@ -30,11 +37,16 @@ class School:
             if flashes == 0:
                 stepped += 1  # Step done
                 # If completed all steps, return flashes done
-                if stepped == steps:
+                if steps is not None and stepped == steps:
                     return flashed
                 # Start next step by adding one to all octopuses
                 sum = np.ones(self.grid.shape, dtype=int)
-            else:  # If flashes happened, keep the consequences of it (sum) and add the flashes to the counter
+
+                # If resolved part 2
+                if steps is None and self.grid.sum() == 0:
+                    return stepped
+
+            else:  # Otherwise, add the flashes to the counter and go on
                 flashed += flashes
 
     def flash(self) -> Tuple[np.ndarray, int]:
@@ -72,11 +84,15 @@ class School:
 
 
 def dumbo(input: str) -> None:
-    with open(input) as f:
-        school = School(f.readlines())
-    steps = 100
+
+    school = School(open(input).readlines())
+
+    steps: Final = 100
     print(
         f"After {steps} steps there will be {school.simulate(steps)} flashes")
+    print(
+        f"They will all flash at the same time after {school.simulate()} steps"
+    )
 
 
 if __name__ == "__main__":
