@@ -25,22 +25,20 @@ def origami(input: str) -> None:
     for dot in dots:
         paper[dot] = True
 
+    part_one_reported = False
     for axis, value in folds:
         if axis == 'y':
             up = paper[:value, ...]
             down = paper[1 + value:, ...]
             down = np.flipud(down)
 
+            extrarows = np.zeros(
+                (abs(down.shape[0] - up.shape[0]), paper.shape[1]),
+                dtype=paper.dtype)
             if up.size > down.size:
-                extracols = np.zeros(
-                    (up.shape[0] - down.shape[0], paper.shape[1]),
-                    dtype=paper.dtype)
-                paper = up + np.r_[extracols, down]
+                paper = up + np.r_[extrarows, down]
             elif up.size < down.size:
-                extracols = np.zeros(
-                    (down.shape[0] - up.shape[0], paper.shape[1]),
-                    dtype=paper.dtype)
-                paper = np.r_[up, extracols] + down
+                paper = np.r_[up, extrarows] + down
             elif up.size == down.size:
                 paper = up + down
 
@@ -49,21 +47,23 @@ def origami(input: str) -> None:
             right = paper[..., 1 + value:]
             right = np.fliplr(right)
 
+            extracols = np.zeros(
+                (paper.shape[0], abs(left.shape[1] - right.shape[1])),
+                dtype=paper.dtype)
             if left.size > right.size:
-                extracols = np.zeros(
-                    (paper.shape[0], left.shape[1] - right.shape[1]),
-                    dtype=paper.dtype)
                 paper = left + np.c_[extracols, right]
             elif left.size < right.size:
-                extracols = np.zeros(
-                    (paper.shape[0], right.shape[1] - left.shape[1]),
-                    dtype=paper.dtype)
                 paper = np.c_[left, extracols] + right
             elif left.size == right.size:
                 paper = left + right
-        break
 
-    print(f"After the first fold, {paper.sum()} dots are visible")
+        if not part_one_reported:
+            part_one_reported = True
+            print(f"After the first fold, {paper.sum()} dots are visible")
+
+    print("The access code is:")
+    for line in np.where(paper, u"\u2588", " "):  # u2588 is block character
+        print(''.join(line))
 
 
 if __name__ == "__main__":
