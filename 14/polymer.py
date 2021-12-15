@@ -1,32 +1,55 @@
-from typing import Dict
+from typing import Dict, Final, List
 
 
 def polymer(input: str) -> None:
-    rules: Dict[str, Dict[str, str]] = {}
+    rules: Dict[str, str] = {}
     with open(input) as f:
-        polymer = [p for p in f.readline().strip()]
+        pairs = [p for p in f.readline().strip()]
+        pairs = [pairs[i] + pairs[i + 1] for i in range(len(pairs) - 1)]
         f.readline()  # empty line
         for line in f:  # rules
             rule = [c.strip() for c in line.split('->')]
             pair = rule[0]
             insert = rule[1]
-            if pair[0] not in rules:
-                rules[pair[0]] = {}
-            rules[pair[0]][pair[1]] = insert
+            rules[pair] = insert
 
-    for iteration in range(10):
-        inserted = 0
-        for pos in range(len(polymer) - 1):
-            first = polymer[pos + inserted]
-            second = polymer[pos + inserted + 1]
-            if first in rules and second in rules[first]:
-                polymer.insert(pos + inserted + 1, rules[first][second])
-                inserted += 1
+    # keep the last character since it will need to be counted apart
+    last: Final = pairs[-1][-1]
+    # keep a dictionary of present pairs, which will be mutated following the collected rules
+    polymer = {pair: pairs.count(pair) for pair in rules.keys()}
 
-    occurrences = [polymer.count(p) for p in set(polymer)]
-    print(
-        f"Difference between most and least is {max(occurrences)-min(occurrences)}"
-    )
+    for iteration in range(1, 40 + 1):
+        after = polymer.copy()
+        for pair, insert in rules.items():
+            if pair not in polymer.keys() or polymer[pair] == 0:
+                continue
+            becomes = pair[0] + insert
+            adds = insert + pair[1]
+
+            if becomes not in after.keys():
+                after[becomes] = polymer[pair]
+            else:
+                after[becomes] += polymer[pair]
+
+            if adds not in after.keys():
+                after[adds] = polymer[pair]
+            else:
+                after[adds] += polymer[pair]
+
+            after[pair] -= polymer[pair]
+        polymer = after.copy()
+
+        if iteration == 10 or iteration == 40:
+            # Take all unique characters in polymer and add all the counts in all pairs in which they appear in first
+            # position, +1 if it was the character in last position in the initial polymer
+            occurrences = [
+                sum([count
+                     for pair, count in polymer.items() if pair[0] == p]) +
+                (1 if p == last else 0) for p in set(''.join(polymer.keys()))
+            ]
+            print(
+                f"Difference between most and least is {max(occurrences)-min(occurrences)} at {iteration} iterations"
+            )
 
 
 if __name__ == "__main__":
