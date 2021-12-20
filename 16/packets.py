@@ -75,6 +75,41 @@ class Packet:
         return children
 
     def value(self) -> int:
+        if self.is_literal():
+            return self.literal_value()
+
+        id: Final = int(self.type(), base=2)
+        if id > 4 and len(self.children()) != 2:
+            raise Exception("Operator packet must contain exactly two packets")
+
+        if id == 0:  # sum
+            return sum([c.value() for c in self.children()])
+
+        if id == 1:  # product
+            val = 1
+            for child in self.children():
+                val *= child.value()
+            return val
+
+        if id == 2:  # minimum
+            return min([c.value() for c in self.children()])
+
+        if id == 3:  # maximum
+            return max([c.value() for c in self.children()])
+
+        if id == 5:  # greater
+            a, b = tuple(self.children())
+            return int(a.value() > b.value())
+
+        if id == 6:  # less
+            a, b = tuple(self.children())
+            return int(a.value() < b.value())
+
+        if id == 7:  # equal
+            a, b = tuple(self.children())
+            return int(a.value() == b.value())
+
+    def literal_value(self) -> int:
         if not self.is_literal():
             raise Exception("Operator package misused")
 
@@ -106,7 +141,9 @@ def packets(input: str) -> None:
     leading_zeros: Final = (4 - len(f"{int(input_content[0], base=16):b}"))
     packet_repr: Final = f"{'0' * leading_zeros}{packet_value:b}"
 
-    print(f"Added up version numbers give {Packet(packet_repr).version_sum()}")
+    packet = Packet(packet_repr)
+    print(f"Added up version numbers give {packet.version_sum()}")
+    print(f"The value of the packet is {packet.value()}")
 
 
 if __name__ == "__main__":
