@@ -68,14 +68,14 @@ def probe(input: str) -> None:
     Shot.target = (complex(*targetfrom), complex(*targetto) - complex(*targetfrom))
 
     shots: List[Shot] = []
-    for x in range(int(targetfrom[0] // 2)):
-        for y in range(abs(int(targetfrom[1] * 6))):
+    for x in range(int(targetfrom[0] + targetto[0])):
+        for y in range(-abs(int(targetfrom[1])), abs(int(targetfrom[1]))):
             shot = Shot(complex(x, y))
             if shot.hitsTarget():
                 shots.append(shot)
 
     print(f"The highest position is {max(shots).highest()}")
-    
+    print(f"There are {len(shots)} possible initial positions")
 
 
 if __name__ == "__main__":
