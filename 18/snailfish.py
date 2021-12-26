@@ -1,4 +1,5 @@
-from typing import Any, Final, List, final
+from typing import Any, Final, List
+from copy import deepcopy
 
 
 def get(number: List[Any], idx: List[int]) -> Any:
@@ -151,18 +152,36 @@ def reduce(number) -> None:
 
 
 def snailfish(input: str) -> None:
-    number: None | List[Any] = None
+    number: None | List[Any] = None  # p1
+    numbers: List[List[Any]] = []  # p2
     with open(input) as f:
         for line in f:
             if not len(line.split()):
                 break
             number = add_numbers(number, parse(line))
             reduce(number)
+            numbers.append(parse(line))  # p2
 
+    # Part 1
     if number is None:
         raise Exception("Empty input?")
 
     print(f"The magnitude of the final sum is {magnitude(number)}")
+
+    # Part 2
+    results: List[int] = []
+    for i in numbers:
+        for j in numbers:
+            if i is j:
+                continue
+            n1 = deepcopy(add_numbers(i, j))
+            reduce(n1)
+            n2 = deepcopy(add_numbers(j, i))
+            reduce(n2)
+            results.append(magnitude(n1))
+            results.append(magnitude(n2))
+
+    print(f"The largest magnitude possible is {max(results)}")
 
 
 if __name__ == "__main__":
