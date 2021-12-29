@@ -42,6 +42,7 @@ def beacons(input: str) -> None:
             beacons[-1].append(scanner)
 
     map = beacons.pop()
+    offsets = [(0, 0, 0)]
     while len(beacons):
         for i, beacon in enumerate(beacons):
             correlated = False
@@ -64,6 +65,7 @@ def beacons(input: str) -> None:
                             for scanner in corrected:
                                 if scanner not in map:
                                     map.append(scanner)
+                            offsets.append(offset)
                             correlated = True
                             break
 
@@ -81,6 +83,14 @@ def beacons(input: str) -> None:
             raise Exception("Could not correlate!")
 
     print(f"There are {len(map)} beacons in the sea")
+
+    # Part 2
+    distances = []
+    for xof, yof, zof in offsets:
+        for xoff, yoff, zoff in offsets:
+            distances.append(
+                sum((abs(xof - xoff), abs(yof - yoff), abs(zof - zoff))))
+    print(f"The largest Manhattan distance is {max(distances)}")
 
 
 if __name__ == "__main__":
