@@ -2,6 +2,9 @@ import os
 from typing import Final, List
 from copy import deepcopy
 
+PART_ONE_ITERATIONS: Final = 2
+PART_TWO_ITERATIONS: Final = 50
+
 
 class Trench:
     algorithm: List[bool] = []
@@ -23,7 +26,7 @@ class Trench:
 
     def iterate(self) -> None:
         self.extend()
-        initial = deepcopy(self.image)
+        initial: Final = deepcopy(self.image)
         for r, row in enumerate(initial):
             for c in range(len(row)):
                 number = 0
@@ -35,12 +38,8 @@ class Trench:
                             value = self.extendvalue
                         else:
                             value = initial[(r + ro)][(c + co)]
-                        # if r == 3 and c == 3:
-                        #     print(f"r+ro={r}+{ro}={r+ro}, c+co={c}+{co}={c+co} => {value}")
                         number += value << neighborcount
                         neighborcount -= 1
-                # if r == 3 and c == 3:
-                #     print(number)
                 self.image[r][c] = Trench.algorithm[number]
         self.extendvalue = Trench.algorithm[-1 if self.extendvalue else 0]
 
@@ -73,7 +72,11 @@ def image(input: str) -> None:
                 break
             trench.append(["#" == x for x in line.strip()])
 
-        print(f"There are {trench.apply(2)} pixels lit")
+    print(f"There are {trench.apply(PART_ONE_ITERATIONS)}" +
+          f" pixels lit after {PART_ONE_ITERATIONS} iterations")
+    print(
+        f"There are {trench.apply(PART_TWO_ITERATIONS - PART_ONE_ITERATIONS)}"
+        + f" pixels lit after {PART_TWO_ITERATIONS} iterations")
 
 
 if __name__ == "__main__":
